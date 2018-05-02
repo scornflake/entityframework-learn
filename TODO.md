@@ -1,0 +1,5 @@
+- Logging showing up correctly in tests
+- Timestamps with timezone in postgres
+- Test DB relationships
+- Tests using DB and fixtures to load data
+- Get it into git @ wft
