@@ -20,7 +20,6 @@ namespace EntityFrameworkTest
 
         public DataContext CreateDbContext(string[] args)
         {
-            DbProviderFactory f = DbProviderFactories.GetFactory("WFT");
             DbContextOptionsBuilder builder = new DbContextOptionsBuilder<DataContext>();
             DbContextOptions<DataContext> options = (DbContextOptions<DataContext>)builder.UseNpgsql(connectionString).Options;
             return new DataContext(options, NLog.LogManager.GetCurrentClassLogger());

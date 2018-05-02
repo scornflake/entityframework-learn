@@ -1,7 +1,6 @@
 ﻿using EntityFrameworkTest.Data;
 using EntityFrameworkTest.Models;
 using Microsoft.EntityFrameworkCore;
-using System.Data.Common;
 using Testing;
 using Xunit;
 using Xunit.Abstractions;
@@ -23,14 +22,23 @@ namespace OrganizationTests
         }
     }
 
+    /*
+     * The inheritance from DatabaseTest doesn't do much (DatabaseTest is mostly commented out)
+     * See this tests constructor
+    */
     public class OrgDBTest : DatabaseTest
     {
         public OrgDBTest(ITestOutputHelper output) : base(output)
         {
             string connectionString = "Host=localhost; Username=wft; Password=foo; Database=wft";
-            //DbProviderFactory f = DbProviderFactories.GetFactory("WFT");
+
             DbContextOptionsBuilder builder = new DbContextOptionsBuilder<DataContext>();
+
+            /*
+             * This is where it's failing
+             */
             DbContextOptions<DataContext> options = (DbContextOptions<DataContext>)builder.UseNpgsql(connectionString).Options;
+
             //new DataContext(options, NLog.LogManager.GetCurrentClassLogger());
 
         }
@@ -38,9 +46,11 @@ namespace OrganizationTests
         [Fact]
         public void CanWriteOrgToDb()
         {
-            Organization org = new Organization();
-            org.Name = "shinywhitebox";
-
+            /*
+             * Commented out for now while I solve the DbContext problem
+             */
+            //Organization org = new Organization();
+            //org.Name = "super org!";
             //Database.SaveChanges();
 
         }
