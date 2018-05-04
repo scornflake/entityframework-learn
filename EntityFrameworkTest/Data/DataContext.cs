@@ -13,14 +13,16 @@ namespace EntityFrameworkTest.Data
         public DataContext(DbContextOptions<DataContext> options, ILogger _logger) : base(options)
         {
             logger = _logger;
-            //Database.EnsureCreated();
-
-            // This will create the DB if necessary
-            Database.Migrate();
         }
 
         public DbSet<Models.Organization> Organizations { get; set; }
         public DbSet<Models.Product> Products { get; set; }
+
+        public void Migrate()
+        {
+            // This will create the DB if necessary
+            Database.Migrate();
+        }
 
         protected override void OnModelCreating(ModelBuilder modelBuilder)
         {

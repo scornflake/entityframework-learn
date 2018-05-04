@@ -3,8 +3,8 @@ using Microsoft.EntityFrameworkCore;
 using Microsoft.EntityFrameworkCore.Design;
 using NLog;
 using SimpleInjector;
+using SimpleInjector.Lifestyles;
 using System;
-using System.Data.Common;
 using System.Windows.Forms;
 
 namespace EntityFrameworkTest
@@ -33,6 +33,7 @@ namespace EntityFrameworkTest
         static Program()
         {
             container = new Container();
+            container.Options.DefaultScopedLifestyle = new ThreadScopedLifestyle();
         }
 
         /// <summary>
@@ -44,7 +45,10 @@ namespace EntityFrameworkTest
             Application.EnableVisualStyles();
             Application.SetCompatibleTextRenderingDefault(false);
             SetupContainer();
-            Application.Run(container.GetInstance<Form1>());
+            using (ThreadScopedLifestyle.BeginScope(container))
+            {
+                Application.Run(container.GetInstance<Form1>());
+            }
         }
 
         private static void SetupContainer()
@@ -54,10 +58,9 @@ namespace EntityFrameworkTest
                     {
                         return new DataContextFactory().CreateDbContext(new string[0]);
                     }
-                , Lifestyle.Singleton);
+                , Lifestyle.Scoped);
 
             container.Register<ILogger>(() => LogManager.GetCurrentClassLogger());
-
             container.Verify();
         }
     }

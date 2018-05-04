@@ -1,40 +1,51 @@
 ﻿using EntityFrameworkTest;
 using EntityFrameworkTest.Data;
+using NUnit.Framework;
 using SimpleInjector;
-using System.Data.Common;
-using Xunit.Abstractions;
+using SimpleInjector.Lifestyles;
 
 namespace Testing
 {
     public class ContainerTest
     {
-        private ITestOutputHelper output;
-
-        public ContainerTest(ITestOutputHelper output)
+        public ContainerTest()
         {
-            this.output = output;
             this.container = new Container();
+            container.Options.DefaultScopedLifestyle = new ThreadScopedLifestyle();
         }
-
-        public ITestOutputHelper Console
-        {
-            get { return output; }
-        }
-
         public Container container { get; private set; }
     }
 
     public class DatabaseTest : ContainerTest
     {
-        public DatabaseTest(ITestOutputHelper output) : base(output)
+        public DatabaseTest()
         {
             string testConnectionString = "Host=localhost; Username=wft;Password=foo;Database=wft-test";
-            //container.Register<DataContext>(
-            //    () =>
-            //    {
-            //        return new DataContextFactory(testConnectionString).CreateDbContext(new string[0]);
-            //    }
-            //    , Lifestyle.Singleton);
+            container.Register<DataContext>(
+                () =>
+                {
+                    return new DataContextFactory(testConnectionString).CreateDbContext(new string[0]);
+                }, Lifestyle.Scoped);
+            container.Verify();
+        }
+
+        [OneTimeSetUp]
+        public void DBInit()
+        {
+            // Get the context from the container and ensure migrations
+            using(ThreadScopedLifestyle.BeginScope(container))
+            {
+                this.Database.Migrate();
+            }
+        }
+
+        [OneTimeTearDown]
+        public void DBDestroy()
+        {
+            using (ThreadScopedLifestyle.BeginScope(container))
+            {
+                this.Database.Database.EnsureDeleted();
+            }
         }
 
         public DataContext Database
